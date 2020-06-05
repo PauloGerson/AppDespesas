@@ -14,8 +14,6 @@ class Chart extends StatelessWidget {
     return List.generate(7, (index){
       final weekDay = DateTime.now().subtract(
         Duration(days: index),
-
-
       );
 
       double totalSum = 0.0;
@@ -46,7 +44,7 @@ class Chart extends StatelessWidget {
       return sum + tr['value'];
     });
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     
@@ -63,7 +61,7 @@ class Chart extends StatelessWidget {
                 child: CharBar(
                 label: tr['day'],
                 value: tr['value'],
-                percentage: (tr['value'] as double) / _weekTotalValue,
+                percentage: _weekTotalValue == 0 ? 0 : (tr['value'] as double) / _weekTotalValue,
               ),
             );
           }).toList(),

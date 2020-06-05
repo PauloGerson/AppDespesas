@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TrasactionForm extends StatefulWidget {
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime) onSubmit;
 
   TrasactionForm(this.onSubmit);
 
@@ -10,16 +11,34 @@ class TrasactionForm extends StatefulWidget {
 }
 
 class _TrasactionFormState extends State<TrasactionForm> {
-  final titleController = TextEditingController();
-  final valueController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _valueController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
 
   _submitForm() {
-    final title = titleController.text;
-    final value = double.tryParse(valueController.text) ?? 0.0;
-    if (title.isEmpty || value <= 0) {
+    final title = _titleController.text;
+    final value = double.tryParse(_valueController.text) ?? 0.0;
+
+    if (title.isEmpty || value <= 0 || _selectedDate == null) {
       return;
     }
-    widget.onSubmit(title, value);
+    widget.onSubmit(title, value, _selectedDate);
+  }
+
+  _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((picketDate) {
+      if (picketDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = picketDate;
+      });
+    });
   }
 
   @override
@@ -31,14 +50,14 @@ class _TrasactionFormState extends State<TrasactionForm> {
         child: Column(
           children: <Widget>[
             TextField(
-              controller: titleController,
+              controller: _titleController,
               onSubmitted: (value) => _submitForm(),
               decoration: InputDecoration(
                 labelText: 'Titulo',
               ),
             ),
             TextField(
-                controller: valueController,
+                controller: _valueController,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 onSubmitted: (value) => _submitForm(),
                 decoration: InputDecoration(
@@ -48,7 +67,13 @@ class _TrasactionFormState extends State<TrasactionForm> {
               height: 70,
               child: Row(
                 children: <Widget>[
-                  Text('Nenhuma data selecionada'),
+                  Expanded(
+                    child: Text(
+                      _selectedDate == null
+                          ? 'Nenhuma data selecionada'
+                          : 'Data Selecionada: ${DateFormat('dd/MM/y').format(_selectedDate)}',
+                    ),
+                  ),
                   FlatButton(
                     textColor: Theme.of(context).primaryColor,
                     child: Text(
@@ -57,7 +82,7 @@ class _TrasactionFormState extends State<TrasactionForm> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: _showDatePicker,
                   )
                 ],
               ),
@@ -68,7 +93,7 @@ class _TrasactionFormState extends State<TrasactionForm> {
                 RaisedButton(
                   child: Text('Nova Transação'),
                   color: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).textTheme.button.color,
+                  textColor: Colors.white,
                   onPressed: _submitForm,
                 ),
               ],
